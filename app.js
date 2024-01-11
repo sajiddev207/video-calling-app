@@ -55,7 +55,7 @@ app.use((req, res, next) => {
   next();
 })
 app.use(bodyParser.json())
-app.post('/loginUser', async (req, res) => {
+app.post('/createUser', async (req, res) => {
 
   try {
     const registerParamSchema = Joi.object({
@@ -64,6 +64,42 @@ app.post('/loginUser', async (req, res) => {
       deviceId: Joi.string().required(),
     });
 
+    const validateData = registerParamSchema.validate(req.body, {
+      abortEarly: true
+    })
+    if (validateData && validateData.error) {
+      return res.status(200).json({ message: validateData.error.details[0].message.replace(/\"/g, ""), error: true, data: null })
+    }
+    let resData = await User.findOne({ email: req.body.email });
+    console.log('resData______________-resData_???????????????', resData, req.body);
+    if (resData) {
+      res.status(200).json({ message: "User Already Exist", data: null, error: true })
+    }
+    else {
+      try {
+        var testUser = new User(req.body);
+        var responnse = await testUser.save();
+        console.log("res ", responnse);
+        return res.status(200).json({ message: "User Create Successfully", error: false, data: responnse })
+      } catch (error) {
+        console.log(error);
+        return res.status(400).json({ message: error, error: true, data: null })
+      }
+    }
+  } catch (error) {
+    console.log(error);
+    return res.status(400).json({ message: error.message, data: null, error: true })
+  }
+});
+app.post('/loginUser', async (req, res) => {
+
+  try {
+    const registerParamSchema = Joi.object({
+      email: Joi.string().required(),
+      userPass: Joi.string().required(),
+      deviceId: Joi.string().required(),
+    });
+    console.log('loginUser_______', loginUser);
     const validateData = registerParamSchema.validate(req.body, {
       abortEarly: true
     })
