@@ -99,7 +99,7 @@ app.post('/loginUser', async (req, res) => {
       userPass: Joi.string().required(),
       deviceId: Joi.string().required(),
     });
-    console.log('loginUser_______', loginUser);
+    console.log('loginUser_______', req.body);
     const validateData = registerParamSchema.validate(req.body, {
       abortEarly: true
     })
